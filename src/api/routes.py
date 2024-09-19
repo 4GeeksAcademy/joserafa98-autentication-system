@@ -25,15 +25,6 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
-@api.route('/trial', methods=['POST', 'GET'])
-def handle_trial():
-
-    response_body = {
-        "message": "Si esto funciona, debe aparecer este mensaje."
-    }
-
-    return jsonify(response_body), 200
-
 @api.route("/login", methods=["POST"])
 def login():
     email = request.json.get("email", None)
