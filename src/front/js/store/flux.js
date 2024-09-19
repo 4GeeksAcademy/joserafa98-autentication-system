@@ -74,12 +74,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 					.catch((error) => console.error("Error during login:", error));
 			},
 			
+			logout: () => {
+				setStore({ auth: false });
+				localStorage.removeItem("token"); 
+			},
 
 			createUser: (email, password) => {
 				const myHeaders = {
 					"Content-Type": "application/json"
 				};
-
+			
 				const requestOptions = {
 					method: "POST",
 					headers: myHeaders,
@@ -88,16 +92,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 						password: password
 					})
 				};
-
-				fetch(process.env.BACKEND_URL + "/api/signup", requestOptions)
-					.then((response) => response.text())
-					.then((result) => {
-						console.log(result);
-
-						setStore({ email: "", password: "" });
+			
+				return fetch(process.env.BACKEND_URL + "/api/signup", requestOptions) 
+					.then((response) => {
+						if (response.status === 200) {
+							setStore({ auth: true });
+						}
+						return response.json(); 
 					})
-					.catch((error) => console.error(error));
+					.then((data) => {
+						localStorage.setItem("token", data.access_token);
+					})
+					.catch((error) => {
+						console.error("Error during signup:", error);
+						throw error; 
+					});
 			}
+			
 		}
 	};
 };

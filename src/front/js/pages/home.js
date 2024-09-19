@@ -7,16 +7,26 @@ export const Home = () => {
     const { store, actions } = useContext(Context);
 	const [email, setEmail] = useState(""); 
     const [password, setPassword] = useState(""); 
-
+	const [successMessage, setSuccessMessage] = useState("");	
     const handleLogin = (e) => {
         e.preventDefault(); 
         actions.loginUser(email, password);
     };
 
-    const handleSignup = (e) => {
-        e.preventDefault(); 
-        actions.createUser(email, password); 
-    };
+	const handleSignup = (e) => {
+		e.preventDefault(); 
+		actions.createUser(email, password)
+			.then(() => {
+				setSuccessMessage("Cuenta creada exitosamente.");
+				setEmail(""); 
+				setPassword(""); 
+			})
+			.catch((error) => {
+				console.error("Error creando cuenta:", error);
+				setSuccessMessage(""); 
+			});
+	};
+	
 
     return (
 		<>
@@ -24,6 +34,7 @@ export const Home = () => {
         <div className="text-center mt-5">
             <div className="container">
                 <h1>Mi primer formulario</h1>
+				{successMessage && <div className="alert alert-success">{successMessage}</div>}
                 <form onSubmit={handleLogin}>
                     <div className="row mb-3">
                         <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
@@ -52,7 +63,7 @@ export const Home = () => {
                         </div>
                     </div>
                     <button type="submit" className="btn btn-primary">Sign in</button>
-					<button  onClick={handleSignup} type="button" className="btn btn-primary">Sign up</button>
+					<button onClick={handleSignup} type="button" className="btn btn-primary">Sign up</button>
                 </form>
             </div>
         </div>
