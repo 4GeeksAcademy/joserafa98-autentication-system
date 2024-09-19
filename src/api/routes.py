@@ -36,10 +36,37 @@ def handle_trial():
 
 @api.route("/login", methods=["POST"])
 def login():
-    username = request.json.get("username", None)
+    email = request.json.get("email", None)
     password = request.json.get("password", None)
-    if username != "test" or password != "test":
-        return jsonify({"msg": "Bad username or password"}), 401
+    user = User.query.filter_by(email=email).first()
+    
+    if user == None:
+        return jsonify({"msg": "This is not the email that are we looking for"})
+    if email is None or password != user.password:
+        return jsonify({"msg": "Correo o contraseña incorrectos"}), 401
 
-    access_token = create_access_token(identity=username)
+    access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token)
+
+@api.route('/signup', methods=['POST'])
+def signup():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
+
+    if not email or not password:
+        return jsonify({"msg": "Email and password are required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        return jsonify({"msg": "Email is already registered"}), 409
+
+    new_user = User(email=email, password=password, is_active=True)
+
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"msg": "Error registering user", "error": str(e)}), 500
+
+    access_token = create_access_token(identity=new_user.id)
+    return jsonify({"msg": "User created successfully", "access_token": access_token}), 201
