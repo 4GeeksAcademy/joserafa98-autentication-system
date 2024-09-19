@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
+import { Navigate } from "react-router-dom";
 import "../../styles/home.css";
 
 export const Home = () => {
@@ -7,62 +8,23 @@ export const Home = () => {
 	const [email, setEmail] = useState(""); 
     const [password, setPassword] = useState(""); 
 
-    const loginUser = (e) => {
+    const handleLogin = (e) => {
         e.preventDefault(); 
-        console.log('send data');
-
-        const myHeaders = {
-            "Content-Type": "application/json"
-        };
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: JSON.stringify({
-                email: email, 
-                password: password 
-            })
-        };
-
-        fetch(process.env.BACKEND_URL + '/api/login', requestOptions)
-            .then((response) => response.text())
-            .then((result) => console.log(result))
-            .catch((error) => console.error(error));
+        actions.loginUser(email, password);
     };
 
-	const createUser = (e) => {
+    const handleSignup = (e) => {
         e.preventDefault(); 
-        console.log('send data');
-
-        const myHeaders = {
-            "Content-Type": "application/json"
-        };
-
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: JSON.stringify({
-                email: email, 
-                password: password 
-            })
-        };
-
-		fetch(process.env.BACKEND_URL + '/api/signup', requestOptions)
-		.then((response) => response.text())
-		.then((result) => {
-			console.log(result);
-
-			setEmail(""); 
-			setPassword("");
-		})
-		.catch((error) => console.error(error));
-};
+        actions.createUser(email, password); 
+    };
 
     return (
+		<>
+		{store.auth === true ?<Navigate to ="/demo"/> : 
         <div className="text-center mt-5">
             <div className="container">
-                <h1>Hello Rigo!!</h1>
-                <form onSubmit={loginUser}>
+                <h1>Mi primer formulario</h1>
+                <form onSubmit={handleLogin}>
                     <div className="row mb-3">
                         <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
                         <div className="col-sm-10">
@@ -90,10 +52,12 @@ export const Home = () => {
                         </div>
                     </div>
                     <button type="submit" className="btn btn-primary">Sign in</button>
-					<button  onClick={createUser} type="button" className="btn btn-primary">Sign up</button>
+					<button  onClick={handleSignup} type="button" className="btn btn-primary">Sign up</button>
                 </form>
             </div>
         </div>
+	 }
+	 </>
     );
 };
 

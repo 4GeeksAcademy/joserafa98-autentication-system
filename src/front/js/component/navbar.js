@@ -1,8 +1,11 @@
-import React from "react";
+import React, {useContext} from "react";
 import { Link } from "react-router-dom";
+import { Context } from "../store/appContext";
 
 export const Navbar = () => {
+	const { store } = useContext(Context);
 	return (
+		<>
 		<nav className="navbar navbar-light bg-light">
 			<div className="container">
 				<Link to="/">
@@ -10,10 +13,12 @@ export const Navbar = () => {
 				</Link>
 				<div className="ml-auto">
 					<Link to="/demo">
-						<button className="btn btn-primary">Check the Context in action</button>
+					{store.auth === true ?<button className="btn btn-danger">Logout</button> : ""}
+						
 					</Link>
 				</div>
 			</div>
 		</nav>
+	</>
 	);
 };
