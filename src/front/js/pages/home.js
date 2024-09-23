@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Context } from "../store/appContext";
 import { Navigate } from "react-router-dom";
 import "../../styles/home.css";
@@ -8,10 +8,24 @@ export const Home = () => {
 	const [email, setEmail] = useState(""); 
     const [password, setPassword] = useState(""); 
 	const [successMessage, setSuccessMessage] = useState("");	
+	const [errorMessage, setErrorMessage] = useState(""); 
+	
     const handleLogin = (e) => {
         e.preventDefault(); 
-        actions.loginUser(email, password);
+        actions.loginUser(email, password)
+            .then((data) => { 
+                console.log("Login exitoso:", data);
+            })
+            .catch((error) => {
+                console.error("Error durante el login:", error);
+            });
     };
+    
+
+    useEffect(() => {
+        actions.checkAuth(); 
+    }, []);
+    
 
 	const handleSignup = (e) => {
 		e.preventDefault(); 
@@ -30,11 +44,12 @@ export const Home = () => {
 
     return (
 		<>
-		{store.auth === true ?<Navigate to ="/demo"/> : 
+		{store.auth === true && localStorage.getItem("token") ? <Navigate to="/demo" /> : 
         <div className="text-center mt-5">
             <div className="container">
                 <h1>Mi primer formulario</h1>
 				{successMessage && <div className="alert alert-success">{successMessage}</div>}
+				{errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
                 <form onSubmit={handleLogin}>
                     <div className="row mb-3">
                         <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>

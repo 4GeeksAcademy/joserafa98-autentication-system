@@ -47,32 +47,49 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 			loginUser: (email, password) => {
 				const myHeaders = {
-					"Content-Type": "application/json"
+				   "Content-Type": "application/json"
 				};
-			
+			 
 				const requestOptions = {
-					method: "POST",
-					headers: myHeaders,
-					body: JSON.stringify({
-						email: email,
-						password: password
-					})
+				   method: "POST",
+				   headers: myHeaders,
+				   body: JSON.stringify({
+					  email: email,
+					  password: password
+				   })
 				};
+			 
+				return fetch(process.env.BACKEND_URL + "/api/login", requestOptions)  
+				   .then((response) => {
+					  if (response.status === 200) {
+						 return response.json();  
+					  } else if (response.status === 401) {
+						 throw new Error("Correo o contraseña incorrectos");
+					  } else {
+						 throw new Error("Error en el servidor");
+					  }
+				   })
+				   .then((data) => {
+					  console.log(data);
+					  setStore({ auth: true });
+					  localStorage.setItem("token", data.access_token);
+				   })
+				   .catch((error) => {
+					  console.error("Error durante el login:", error.message);
+					  throw error;  
+				   });
+			 },
 			
-				fetch(process.env.BACKEND_URL + "/api/login", requestOptions)
-					.then((response) => {
-						console.log (response.status)
-						if (response.status=== 200) {
-							setStore({auth: true});
-						}
-						return response.json(); 
-					})
-					.then((data) => {
-						console.log(data); 
-						localStorage.setItem("token", data.access_token); 
-					})
-					.catch((error) => console.error("Error during login:", error));
+			
+			checkAuth: () => {
+				const token = localStorage.getItem("token");
+				if (token) {
+					setStore({ auth: true }); 
+				} else {
+					setStore({ auth: false }); 
+				}
 			},
+			
 			
 			logout: () => {
 				setStore({ auth: false });

@@ -9,6 +9,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from werkzeug.security import check_password_hash
 
 api = Blueprint('api', __name__)
 
@@ -31,13 +32,17 @@ def login():
     password = request.json.get("password", None)
     user = User.query.filter_by(email=email).first()
     
-    if user == None:
-        return jsonify({"msg": "This is not the email that are we looking for"})
-    if email is None or password != user.password:
-        return jsonify({"msg": "Correo o contraseña incorrectos"}), 401
+    if user is None:
+        return jsonify({"msg": "This is not the email that are we looking for"}), 404  
+    
+    if email is None or not check_password_hash(user.password, password):
+        return jsonify({"msg": "Correo o contraseña incorrectos"}), 401  
+
 
     access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token)
+    return jsonify(access_token=access_token), 200
+
+from werkzeug.security import generate_password_hash
 
 @api.route('/signup', methods=['POST'])
 def signup():
@@ -51,7 +56,8 @@ def signup():
     if user:
         return jsonify({"msg": "Email is already registered"}), 409
 
-    new_user = User(email=email, password=password, is_active=True)
+    hashed_password = generate_password_hash(password)  # <--- Hashea la contraseña
+    new_user = User(email=email, password=hashed_password, is_active=True)
 
     try:
         db.session.add(new_user)
