@@ -42,7 +42,7 @@ def login():
     access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token), 200
 
-from werkzeug.security import generate_password_hash
+
 
 @api.route('/signup', methods=['POST'])
 def signup():
@@ -64,6 +64,17 @@ def signup():
         db.session.commit()
     except Exception as e:
         return jsonify({"msg": "Error registering user", "error": str(e)}), 500
-
+    
     access_token = create_access_token(identity=new_user.id)
     return jsonify({"msg": "User created successfully", "access_token": access_token}), 201
+
+@api.route("/private", methods=["GET"])
+@jwt_required()  
+def private_route():
+    current_user = get_jwt_identity()
+    
+    response_body = {
+        "msg": f"Bienvenido {current_user}, has accedido a la ruta privada."
+    }
+
+    return jsonify(response_body), 200
