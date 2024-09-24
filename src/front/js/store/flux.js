@@ -17,7 +17,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			auth: false
 		},
 		actions: {
-	
+
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
@@ -47,60 +47,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 			loginUser: (email, password) => {
 				const myHeaders = {
-				   "Content-Type": "application/json"
-				};
-			 
-				const requestOptions = {
-				   method: "POST",
-				   headers: myHeaders,
-				   body: JSON.stringify({
-					  email: email,
-					  password: password
-				   })
-				};
-			 
-				return fetch(process.env.BACKEND_URL + "/api/login", requestOptions)  
-				   .then((response) => {
-					  if (response.status === 200) {
-						 return response.json();  
-					  } else if (response.status === 401) {
-						 throw new Error("Correo o contraseña incorrectos");
-					  } else {
-						 throw new Error("Error en el servidor");
-					  }
-				   })
-				   .then((data) => {
-					  console.log(data);
-					  setStore({ auth: true });
-					  localStorage.setItem("token", data.access_token);
-				   })
-				   .catch((error) => {
-					  console.error("Error durante el login:", error.message);
-					  throw error;  
-				   });
-			 },
-			
-			
-			checkAuth: () => {
-				const token = localStorage.getItem("token");
-				if (token) {
-					setStore({ auth: true }); 
-				} else {
-					setStore({ auth: false }); 
-				}
-			},
-			
-			
-			logout: () => {
-				setStore({ auth: false });
-				localStorage.removeItem("token"); 
-			},
-
-			createUser: (email, password) => {
-				const myHeaders = {
 					"Content-Type": "application/json"
 				};
-			
+
 				const requestOptions = {
 					method: "POST",
 					headers: myHeaders,
@@ -109,13 +58,64 @@ const getState = ({ getStore, getActions, setStore }) => {
 						password: password
 					})
 				};
-			
-			return fetch(process.env.BACKEND_URL + "/api/signup", requestOptions) 
+
+				return fetch(process.env.BACKEND_URL + "/api/login", requestOptions)
 					.then((response) => {
-						if (response.status === 201) { 
+						if (response.status === 200) {
+							return response.json();
+						} else if (response.status === 401) {
+							throw new Error("Correo o contraseña incorrectos");
+						} else {
+							throw new Error("Error en el servidor");
+						}
+					})
+					.then((data) => {
+						console.log(data);
+						setStore({ auth: true });
+						localStorage.setItem("token", data.access_token);
+					})
+					.catch((error) => {
+						console.error("Error durante el login:", error.message);
+						throw error;
+					});
+			},
+
+
+			checkAuth: () => {
+				const token = localStorage.getItem("token");
+				if (token) {
+					setStore({ auth: true });
+				} else {
+					setStore({ auth: false });
+				}
+			},
+
+
+			logout: () => {
+				setStore({ auth: false });
+				localStorage.removeItem("token");
+			},
+
+			createUser: (email, password) => {
+				const myHeaders = {
+					"Content-Type": "application/json"
+				};
+
+				const requestOptions = {
+					method: "POST",
+					headers: myHeaders,
+					body: JSON.stringify({
+						email: email,
+						password: password
+					})
+				};
+
+				return fetch(process.env.BACKEND_URL + "/api/signup", requestOptions)
+					.then((response) => {
+						if (response.status === 201) {
 							setStore({ auth: true });
 						}
-						return response.json(); 
+						return response.json();
 					})
 					.then((data) => {
 						if (data.access_token) {
@@ -124,11 +124,11 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 					.catch((error) => {
 						console.error("Error during signup:", error);
-						throw error; 
+						throw error;
 					});
 
 			}
-			
+
 		}
 	};
 };
