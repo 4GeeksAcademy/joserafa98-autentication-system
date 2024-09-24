@@ -110,20 +110,23 @@ const getState = ({ getStore, getActions, setStore }) => {
 					})
 				};
 			
-				return fetch(process.env.BACKEND_URL + "/api/signup", requestOptions) 
+			return fetch(process.env.BACKEND_URL + "/api/signup", requestOptions) 
 					.then((response) => {
-						if (response.status === 200) {
+						if (response.status === 201) { 
 							setStore({ auth: true });
 						}
 						return response.json(); 
 					})
 					.then((data) => {
-						localStorage.setItem("token", data.access_token);
+						if (data.access_token) {
+							localStorage.setItem("token", data.access_token);
+						}
 					})
 					.catch((error) => {
 						console.error("Error during signup:", error);
 						throw error; 
 					});
+
 			}
 			
 		}

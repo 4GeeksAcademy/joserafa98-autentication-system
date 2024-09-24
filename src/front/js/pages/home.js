@@ -35,12 +35,15 @@ export const Home = () => {
                 setSuccessMessage("Cuenta creada exitosamente.");
                 setEmail(""); 
                 setPassword(""); 
+                setErrorMessage(""); 
             })
             .catch((error) => {
                 console.error("Error creando cuenta:", error);
+                setErrorMessage("No se pudo crear la cuenta. Verifica los datos e intenta nuevamente.");
                 setSuccessMessage(""); 
             });
     };
+    
 
     return (
         <>
